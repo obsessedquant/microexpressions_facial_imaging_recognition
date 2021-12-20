@@ -2,7 +2,7 @@
 
 ## Facial Expressions Detection & Emotion Prediction
 
-![face_off](Images/face_off.png)
+![face_off](./1_Images/face_off.png)
 
 ## Background
 
