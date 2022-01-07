@@ -4,7 +4,9 @@ import os
 import numpy as np
 import tensorflow as tf
 from keras.models import model_from_json
+from keras.models import load_model
 from keras.preprocessing import image
+
 
 #get classifier 
 cascPath = "haarcascade_frontalface_default.xml"
@@ -15,8 +17,11 @@ faceCascade = cv2.CascadeClassifier(cascPath)
 model = model_from_json(open("cnn_model.json", "r").read())
 model.load_weights("cnn_weights.h5")
 
+gender_model = load_model('gender_model.h5')
 
-video_capture = cv2.VideoCapture(0) #start capturing from default 0 (webcam) change 0 to a file name if you want to check emotions on a video
+gender_labels = ['Male', 'Female']
+
+video_capture = cv2.VideoCapture('man.gif') #start capturing from default 0 (webcam) change 0 to a file name if you want to check emotions on a video
 
 #while true keep capturing frames 
 while True:
@@ -54,7 +59,16 @@ while True:
         print(predicted_emotions)
 
         #print emotion on the frame
-        cv2.putText(frame, predicted_emotions, (int(x),int(y)), cv2.FONT_HERSHEY_SIMPLEX,2, (0,0,255), 3 ) #Change the color of the emotion text 
+        cv2.putText(frame, predicted_emotions, (int(x),int(y+300)), cv2.FONT_HERSHEY_SIMPLEX,2, (0,0,255),2) #Change the color of the emotion text 
+
+        #Gender
+        gender_predict = gender_model.predict(np.array(aoi_gray).reshape(-1,48,48,1))
+        gender_predict = (gender_predict>= 0.5).astype(int)[:,0]
+        gender_label=gender_labels[gender_predict[0]] 
+
+        #print gender on the frame
+        cv2.putText(frame,gender_label,(int(x),int(y)),cv2.FONT_HERSHEY_SIMPLEX,1,(0,255,0),2)
+
 
     #resize 
     img_resize = cv2.resize(frame,(1000,700))
